@@ -1,25 +1,37 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Consumer } from '../../context';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSortDown } from '@fortawesome/free-solid-svg-icons';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 class Contact extends Component {
   state = {
     showContactInfo: false
   };
-  onDeleteClick = (id, dispatch) => {
-    dispatch({
-      type: 'DELETE_CONTACT',
-      payload: id
-    });
+  onDeleteClick = async (id, dispatch) => {
+    try {
+      await axios.delete(`https://jsonplaceholder.typicode.com/users/${id}`);
+      dispatch({
+        type: 'DELETE_CONTACT',
+        payload: id
+      });
+    } catch (e) {
+      dispatch({
+        type: 'DELETE_CONTACT',
+        payload: id
+      });
+    }
   };
   render() {
     const { id, name, email, phone } = this.props.contact;
     const { showContactInfo } = this.state;
     const sortDown = <FontAwesomeIcon icon={faSortDown} />;
     const times = <FontAwesomeIcon icon={faTimes} />;
+    const pencilIcon = <FontAwesomeIcon icon={faPencilAlt} />;
     return (
       <Consumer>
         {value => {
@@ -43,6 +55,16 @@ class Contact extends Component {
                   onClick={this.onDeleteClick.bind(this, id, dispatch)}
                 >
                   {times}
+                </span>
+                <span
+                  style={{
+                    cursor: 'pointer',
+                    float: 'right',
+                    color: 'black',
+                    marginRight: '1rem'
+                  }}
+                >
+                  <Link to={`contact/edit/${id}`}>{pencilIcon}</Link>
                 </span>
               </h4>
               {showContactInfo ? (
